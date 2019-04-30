@@ -3,11 +3,27 @@
 ##### The App's Router
 
 require '../vendor/autoload.php';
-require_once '../src/PeopleController.php';
-require_once '../src/OfficeController.php';
+require_once '../src/controller/PeopleController.php';
+require_once '../src/controller/OfficeController.php';
+require_once '../src/controller/AuthMiddleware.php';
+require_once '../src/controller/PostDataController.php';
+require_once '../src/controller/TransactionController.php';
+require_once '../src/controller/GetDataController.php';
+require_once '../src/controller/SubmitPaymentController.php';
+require_once '../src/dao/SubmitPaymentDao.php';
+require_once '../src/dao/GetDataDao.php';
+require_once '../src/dao/TransactionDAO.php';
 
+
+#### Declearing the classes with their namespaces
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
+use Kreait\Firebase\Factory;                        
+use Kreait\Firebase\ServiceAccount;
+use Firebase\Auth\Token\Exception\InvalidToken;
+use Symfony\Component\Cache\Simple\FilesystemCache;
+use GuzzleHttp\Client;
+
 
 ##### Application settings
 $config = array();
@@ -26,7 +42,7 @@ $app = new \Slim\App(['settings' => $config]);
 #### Get the default DIC
 $container = $app->getContainer();
 
-#### Add PDO service to the default DIC
+#### Add services to the default DIC
 $container['pdo'] = function ($c) {
     $db = $c->get('settings')['db'];
     $pdo = new PDO($db['dns'], $db['username'], $db['password']);
@@ -34,6 +50,28 @@ $container['pdo'] = function ($c) {
     $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
     return $pdo;
 };
+
+$container['firebase'] = function ($c) {
+    // system cache to store google's public keys
+    $cache = new FilesystemCache();                
+    $serviceAccount = ServiceAccount::fromJsonFile('../serviceAccount.json');
+    $firebase = (new Factory)
+                ->withServiceAccount($serviceAccount)
+                ->withVerifierCache($cache)
+                ->create();
+
+    return $firebase;
+};
+
+$container['guzzle'] = function ($c) {
+    $client = new Client(['base_uri' => 'http://httpbin.org']);
+    return $client;
+};
+
+
+#### Add AuthMiddleware 
+//$app->add(new AuthMiddleware($app->getContainer()->get('firebase')));
+
 
 
 #### Slim Error Handling
@@ -107,10 +145,28 @@ $container['OfficeController'] = function($c) {
     return new OfficeController($pdo);
 };
 
+$container['TransactionController'] = function($c) {
+    $pdo = $c->get("pdo"); 
+    $dao = new TransactionDAO($pdo);
+    return new TransactionController($dao);
+};
+
+$container['GetDataController'] = function($c) {
+    $pdo = $c->get("pdo"); 
+    $dao = new GetDataDao($pdo);
+    return new GetDataController($dao);
+};
+
+$container['SubmitPaymentController'] = function($c) {
+    $pdo = $c->get("pdo"); 
+    $dao = new SubmitPaymentDao($pdo);
+    return new SubmitPaymentController($dao);
+};
 
 
 
 #### Declare the routes
+#### API endpoints
 
 $app->get('/hello[/{name}]', function ($request, $response, $args) {
     // check if the service exist in the DIC
@@ -119,30 +175,11 @@ $app->get('/hello[/{name}]', function ($request, $response, $args) {
 
         return $response->getBody()->write("db connected");
     }
-})->add(function ($request, $response, $next) {
-    // check if the route has 'name' path parameter
-
-    $route = $request->getAttribute('route');
-    $name = $route->getArgument('name');
-
-    if (empty($name)) {
-        $response = $response->withJson([
-            'success' => false,
-            'msg' => 'name parameter not found'
-        ], 401);
-    } 
-    else {
-        $response = $next($request, $response);
-    }
-    
-    return $response;
 });
 
-
-
 // get all the people
-//$app->get('/people', PeopleController::class . ':getPeople');
-$app->get('/people', 'PeopleController:getPeople');
+$app->get('/people', PeopleController::class . ':getPeople');
+//$app->get('/people', 'PeopleController:getPeople');
 
 // get a single person
 $app->get('/people/{id:[1-9]+}', 'PeopleController:getPeopleById');
@@ -153,6 +190,41 @@ $app->post('/people/new', 'PeopleController:createPerson');
 
 // get offices of #dept and #district
 $app->get('/depts/{dept_code}/districts/{district_code}/offices', 'OfficeController:getOffices');
+
+// post data to httpbin
+$app->post('/post', PostDataController::class);
+
+
+#############################################################################################################
+#### EGRAS ENDPOINTS
+
+// get transactions
+// GET:     /transactions?page=#
+$app->get('/transactions', TransactionController::class . ':allTransactions');
+
+// get departments
+//GET:          /departments 
+$app->get('/departments', GetDataController::class . ':departments');
+
+// get payment types
+// GET:         /paymenttypes
+$app->get('/paymenttypes', GetDataController::class . ':paymenttypes');
+
+// get districts for #dept_code
+// GET:          /departments/{dept_code}/districts 
+$app->get('/departments/{dept_code}/districts', GetDataController::class . ':districts');
+
+// get offices for #dept_code & #district_code
+// GET:          /departments/{dept_code}/districts/{district_code}/offices
+$app->get('/departments/{dept_code}/districts/{district_code}/offices', GetDataController::class . ':offices');
+
+// get schemes for #office_code 
+// GET:         /offices/{office_code}/schemes
+$app->get('/offices/{office_code}/schemes', GetDataController::class . ':schemes');
+
+// post payment data 
+// POST:         /submit-payment
+$app->post('/submit-payment', SubmitPaymentController::class);
 
 
 
