@@ -9,9 +9,12 @@ class TransactionController
     }
 
     public function allTransactions($request, $response, $args) {
-        $page = $request->getQueryParam('page', 0);
+        //$page = $request->getQueryParam('page', 0);
+
+        // all query parameters as an associative array
+        $params = $request->getQueryParams();
 
         // call DAO
-        return $response->withJson($this->dao->getTransactions($page));
+        return $response->withJson($this->dao->getTransactions($params));
     }
 }
