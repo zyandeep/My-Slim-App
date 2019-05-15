@@ -9,12 +9,24 @@ class TransactionController
     }
 
     public function allTransactions($request, $response, $args) {
-        //$page = $request->getQueryParam('page', 0);
-
         // all query parameters as an associative array
         $params = $request->getQueryParams();
 
+         // get the uid
+         $user = $request->getAttribute('user');
+         $uid = $user->uid;
+
         // call DAO
-        return $response->withJson($this->dao->getTransactions($params));
+        return $response->withJson($this->dao->getTransactions($params, $uid));
+    }
+
+    public function recentTransactions($request, $response, $args)
+    {
+        // get the uid
+        $user = $request->getAttribute('user');
+        $uid = $user->uid;
+
+        // call DAO
+        return $response->withJson($this->dao->getRecentTransactions($uid));
     }
 }

@@ -13,24 +13,23 @@ class SubmitPaymentController
         // converting json input into an associative array <key => value>
         $arr = $request->getParsedBody();                   
 
+        // get the currently signed-in user
+        $user = $request->getAttribute('user');
+
         // Do some processing and validation
-        //  1. add sub_system and department_id
-        //  2. remove scheme names from HOA
-        //  3. remove SRO_CODE and DISTRICT_CODE
-        //  4. write to egras_response/log
 
         // JUST FOR TESTING PURPOSE
         $arr["DEPT_CODE"] = "LRS";
         $arr["OFFICE_CODE"] = "LRS000";
         $arr['SUB_SYSTEM'] = "LRC-EMOJNI";
+        $arr["TREASURY_CODE"] = "BIL";
+        $arr["MAJOR_HEAD"] = "0029";
+
     
         $id = $this->dao->getUniqueNumber();
         // it must be unique for each transaction
         // use to identify transaction at department portal
         $arr['DEPARTMENT_ID'] = "Ele". $id;
-
-        //$districtCode = $arr['DISTRICT_CODE'];
-        //$sroCode = $arr['SRO_CODE'];
 
         // get the list of schemes
         $hoas = $arr['HOA'];
@@ -41,11 +40,27 @@ class SubmitPaymentController
             $arr['HOA' . $i] = $scheme['SCHEME_CODE'];
             $arr['AMOUNT' . $i] = $scheme['amount'];
         }
-
-
+        // JUST FOR TESTING PURPOSE
         $arr["HOA1"] = "0029-00-101-0000-000-01";
+
         unset($arr['SRO_CODE']);
         unset($arr['DISTRICT_CODE']);
+
+        //  Write to egras_log and egras_response
+        $this->dao->logData(array(
+            'department_id' => $arr['DEPARTMENT_ID'],
+            'request_parameters' => json_encode($arr)
+        ));
+
+        $this->dao->storeData(array(
+            'department_id' => $arr['DEPARTMENT_ID'],
+            'office_code' => $arr['OFFICE_CODE'],
+            'request_parameters' => json_encode($arr),
+            'mobile' => $arr['MOBILE_NO'],
+            'amount' => $arr['CHALLAN_AMOUNT'],
+            'u_id' => $user->uid
+        ));
+
 
         // convert '$arr' to a string of the form 'key=value&key=value'
         $postData = '';

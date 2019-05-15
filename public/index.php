@@ -70,7 +70,7 @@ $container['guzzle'] = function ($c) {
 
 
 #### Add AuthMiddleware 
-//$app->add(new AuthMiddleware($app->getContainer()->get('firebase')));
+$app->add(new AuthMiddleware($app->getContainer()->get('firebase')));
 
 
 
@@ -226,6 +226,9 @@ $app->get('/offices/{office_code}/schemes', GetDataController::class . ':schemes
 // POST:         /submit-payment
 $app->post('/submit-payment', SubmitPaymentController::class);
 
+// get 5 recent transaction 
+// GET:         /recent-transactions
+$app->get('/recent-transactions', TransactionController::class . ':recentTransactions');
 
 
 #### Finally, run the app

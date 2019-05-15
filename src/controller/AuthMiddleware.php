@@ -13,17 +13,20 @@ class AuthMiddleware
     {
         if ($request->hasHeader('Authorization')) {
             // get the header value
-            $headerValue = $request->getHeader('Authorization');
-            
+            $headerValue = $request->getHeader('Authorization');     
             $jwtToken = explode(" ", $headerValue[0])[1];
 
             //verify the jwt retrieve from client app
-            $verifiedIdToken = $this->firebase->getAuth()->verifyIdToken($jwtToken);
-
             // get the 'uid' from the token
             // get the currently signed-in user from the 'uid'
 
-            $response = $next($request, $response);
+           $verifiedIdToken = $this->firebase->getAuth()->verifyIdToken($jwtToken, false, true);
+           $uid = $verifiedIdToken->getClaim('sub');
+           $user = $this->firebase->getAuth()->getUser($uid);
+
+           $request = $request->withAttribute('user', $user);  
+
+           $response = $next($request, $response);
         }
         else {
              // no jwt token found
