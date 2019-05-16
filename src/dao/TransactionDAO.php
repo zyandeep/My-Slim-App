@@ -18,7 +18,7 @@ class TransactionDAO
              $sql = "SELECT id, name, grnno, to_char(challan_date, 'DD/MON/YYYY') as challan_date, amount, status, mop FROM"
                 . " (SELECT egras_response.id, office.name, grnno, challan_date, amount, status, mop FROM"
                 . " office, egras_response WHERE office.office_code =  egras_response.office_code AND u_id = ?"
-                . " MINUS SELECT * FROM (SELECT egras_response.id, office.name, grnno, challan_date, amount, status, mop"
+                . " MINUS SELECT * FROM (SELECT egras_response.id, office.name, grnno, challan_date, amount, status, mop "
                 . " FROM office, egras_response WHERE office.office_code = egras_response.office_code AND u_id = ?"
                 . " ORDER BY challan_date DESC) WHERE ROWNUM <= ? * $this->rowNum ORDER BY challan_date DESC)"
                 . " WHERE ROWNUM <= $this->rowNum";
@@ -92,6 +92,48 @@ class TransactionDAO
             array_push($data['result'], $row);
         }
 
+        return $data;
+    }
+
+
+    public function repeatPayment($id)
+    {
+        // repeat the payment specified by $id
+        // get the request parametes for the id
+        
+        $sql = "select requestparameters from egras_response where id = ?";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue(1, $id, PDO::PARAM_INT);
+        $stmt->execute();
+        
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);      // since only one record
+        $params = $row['REQUESTPARAMETERS'];
+
+        $arr = json_decode($params, true);
+
+        // log it to egras_log
+        $dao = new SubmitPaymentDao($this->pdo);
+        $dao->logData(array(
+            'department_id' => $arr['DEPARTMENT_ID'],           // GRAS need a new dept_id(??)
+            'request_parameters' => $params
+        ));
+ 
+        $postData = '';
+
+        // convert request params into the form 'key=value&key=value'
+        foreach ($arr as $key => $value) {
+            $postData .= $key . "=" . $value . "&";
+        }
+        
+        // remove the trailing "&" 
+        $postData = trim(substr($postData, 0, -1));
+
+        // Send data for android to POST on eGRAS site
+        $data = array();
+        $data['success'] = true;
+        $data['data'] = $postData;
+        $data['url'] = "http://103.8.248.139/challan/views/frmgrnfordept.php";
+ 
         return $data;
     }
 }

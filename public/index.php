@@ -73,7 +73,6 @@ $container['guzzle'] = function ($c) {
 $app->add(new AuthMiddleware($app->getContainer()->get('firebase')));
 
 
-
 #### Slim Error Handling
 
 // add error handler service                    for Error : 500
@@ -229,6 +228,9 @@ $app->post('/submit-payment', SubmitPaymentController::class);
 // get 5 recent transaction 
 // GET:         /recent-transactions
 $app->get('/recent-transactions', TransactionController::class . ':recentTransactions');
+
+// GET:         /repeat-payment
+$app->get('/repeat-payment/{id}', TransactionController::class . ':repeatPayment');
 
 
 #### Finally, run the app

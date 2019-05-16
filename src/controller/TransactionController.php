@@ -29,4 +29,10 @@ class TransactionController
         // call DAO
         return $response->withJson($this->dao->getRecentTransactions($uid));
     }
+
+    public function repeatPayment($request, $response, $args)
+    {
+        $id = $args['id'];
+        return $response->withJson($this->dao->repeatPayment($id));
+    }
 }

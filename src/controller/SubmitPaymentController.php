@@ -47,11 +47,6 @@ class SubmitPaymentController
         unset($arr['DISTRICT_CODE']);
 
         //  Write to egras_log and egras_response
-        $this->dao->logData(array(
-            'department_id' => $arr['DEPARTMENT_ID'],
-            'request_parameters' => json_encode($arr)
-        ));
-
         $this->dao->storeData(array(
             'department_id' => $arr['DEPARTMENT_ID'],
             'office_code' => $arr['OFFICE_CODE'],
@@ -59,6 +54,11 @@ class SubmitPaymentController
             'mobile' => $arr['MOBILE_NO'],
             'amount' => $arr['CHALLAN_AMOUNT'],
             'u_id' => $user->uid
+        ));
+
+        $this->dao->logData(array(
+            'department_id' => $arr['DEPARTMENT_ID'],
+            'request_parameters' => json_encode($arr)
         ));
 
 

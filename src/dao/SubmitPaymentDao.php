@@ -17,6 +17,8 @@ class SubmitPaymentDao
         return $row['NEXTVAL'];
     }
 
+    
+    // every time, there's a request to eGras, log it to the database 
     // write data to egras_log
     public function logData($arr = null)
     {
