@@ -10,9 +10,9 @@ class TransactionDAO
         $this->rowNum = 10;
     }
 
-    public function getTransactions($params, $uid)         // an assoctiative array of all Qprarams
+    public function getTransactions($json, $uid)         // an assoctiative array of all Qprarams
     {
-        if (empty($params['year']) && empty($params['month1']) && empty($params['month2'])) {
+        if (empty($json['year']) && empty($json['month1']) && empty($json['month2'])) {
             // for an unfiltered/general search
 
              $sql = "SELECT id, name, grnno, to_char(challan_date, 'DD/MON/YYYY') as challan_date, amount, status, mop FROM"
@@ -26,7 +26,7 @@ class TransactionDAO
             $stmt = $this->pdo->prepare($sql);
             $stmt->bindValue(1, $uid, PDO::PARAM_STR);
             $stmt->bindValue(2, $uid, PDO::PARAM_STR);
-            $stmt->bindValue(3, $params['page'], PDO::PARAM_INT);
+            $stmt->bindValue(3, $json['page'], PDO::PARAM_INT);
             $stmt->execute();   
         } 
         else {
@@ -39,18 +39,18 @@ class TransactionDAO
             $stmt = $this->pdo->prepare($sql);
         
             $stmt->bindValue(1, $uid, PDO::PARAM_STR);
-            $stmt->bindValue(2, $params['month1'], PDO::PARAM_INT);
-            $stmt->bindValue(3, $params['month2'], PDO::PARAM_INT);
-            $stmt->bindValue(4, $params['month2'], PDO::PARAM_INT);
-            $stmt->bindValue(5, $params['month1'], PDO::PARAM_INT);
-            $stmt->bindValue(6, $params['year'], PDO::PARAM_INT);
+            $stmt->bindValue(2, $json['month1'], PDO::PARAM_INT);
+            $stmt->bindValue(3, $json['month2'], PDO::PARAM_INT);
+            $stmt->bindValue(4, $json['month2'], PDO::PARAM_INT);
+            $stmt->bindValue(5, $json['month1'], PDO::PARAM_INT);
+            $stmt->bindValue(6, $json['year'], PDO::PARAM_INT);
             $stmt->bindValue(7, $uid, PDO::PARAM_STR);
-            $stmt->bindValue(8, $params['month1'], PDO::PARAM_INT);
-            $stmt->bindValue(9, $params['month2'], PDO::PARAM_INT);
-            $stmt->bindValue(10, $params['month2'], PDO::PARAM_INT);
-            $stmt->bindValue(11, $params['month1'], PDO::PARAM_INT);
-            $stmt->bindValue(12, $params['year'], PDO::PARAM_INT);
-            $stmt->bindValue(13, $params['page'], PDO::PARAM_INT);
+            $stmt->bindValue(8, $json['month1'], PDO::PARAM_INT);
+            $stmt->bindValue(9, $json['month2'], PDO::PARAM_INT);
+            $stmt->bindValue(10, $json['month2'], PDO::PARAM_INT);
+            $stmt->bindValue(11, $json['month1'], PDO::PARAM_INT);
+            $stmt->bindValue(12, $json['year'], PDO::PARAM_INT);
+            $stmt->bindValue(13, $json['page'], PDO::PARAM_INT);
 
             $stmt->execute();
         }
@@ -107,20 +107,20 @@ class TransactionDAO
         $stmt->execute();
         
         $row = $stmt->fetch(PDO::FETCH_ASSOC);      // since only one record
-        $params = $row['REQUESTPARAMETERS'];
+        $json = $row['REQUESTPARAMETERS'];
 
-        $arr = json_decode($params, true);
+        $arr = json_decode($json, true);
 
         // log it to egras_log
         $dao = new SubmitPaymentDao($this->pdo);
         $dao->logData(array(
             'department_id' => $arr['DEPARTMENT_ID'],           // GRAS need a new dept_id(??)
-            'request_parameters' => $params
+            'request_parameters' => $json
         ));
  
         $postData = '';
 
-        // convert request params into the form 'key=value&key=value'
+        // convert request json into the form 'key=value&key=value'
         foreach ($arr as $key => $value) {
             $postData .= $key . "=" . $value . "&";
         }
@@ -133,6 +133,44 @@ class TransactionDAO
         $data['success'] = true;
         $data['data'] = $postData;
         $data['url'] = "http://103.8.248.139/challan/views/frmgrnfordept.php";
+ 
+        return $data;
+    }
+
+    public function verifyPayment($id)
+    {
+        // get the parametes to verify a payment by the id
+        
+        $sql = "select office_code, departmentid as DEPARTMENT_ID, amount, to_char(challan_date, 'DD/MM/YYYY') as entry_date"
+                 . " from egras_response where id = ?";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue(1, $id, PDO::PARAM_INT);
+        $stmt->execute();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);      // since only one record
+
+        $json = json_encode($row);
+
+        // log it to egras_log
+        $dao = new SubmitPaymentDao($this->pdo);
+        $dao->logData(array(
+            'department_id' => $row['DEPARTMENT_ID'],         
+            'request_parameters' => $json
+        ));
+ 
+
+        $postData = '';
+        // convert request json into the form 'key=value&key=value'
+        foreach ($row as $key => $value) {
+            $postData .= $key . "=" . $value . "&";
+        }
+        // remove the trailing "&" 
+        $postData = trim(substr($postData, 0, -1));
+      
+        // Send data for android to POST on eGRAS site
+        $data = array();
+        $data['success'] = true;
+        $data['data'] = $json;
+        $data['url'] = "http://10.153.16.145/challan/models/frmgetgrn.php";
  
         return $data;
     }

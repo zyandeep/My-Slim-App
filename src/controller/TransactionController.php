@@ -35,4 +35,10 @@ class TransactionController
         $id = $args['id'];
         return $response->withJson($this->dao->repeatPayment($id));
     }
+
+    public function verifyPayment($request, $response, $args)
+    {
+        $id = $args['id'];
+        return $response->withJson($this->dao->verifyPayment($id));
+    }
 }

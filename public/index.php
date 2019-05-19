@@ -229,9 +229,11 @@ $app->post('/submit-payment', SubmitPaymentController::class);
 // GET:         /recent-transactions
 $app->get('/recent-transactions', TransactionController::class . ':recentTransactions');
 
-// GET:         /repeat-payment
+// GET:         /repeat-payment/{id}
 $app->get('/repeat-payment/{id}', TransactionController::class . ':repeatPayment');
 
+// GET:         /verify-payment/{id}
+$app->get('/verify-payment/{id}', TransactionController::class . ':verifyPayment');
 
 #### Finally, run the app
 $app->run();
