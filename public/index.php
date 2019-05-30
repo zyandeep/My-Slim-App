@@ -3,10 +3,7 @@
 ##### The App's Router
 
 require '../vendor/autoload.php';
-require_once '../src/controller/PeopleController.php';
-require_once '../src/controller/OfficeController.php';
 require_once '../src/controller/AuthMiddleware.php';
-require_once '../src/controller/PostDataController.php';
 require_once '../src/controller/TransactionController.php';
 require_once '../src/controller/GetDataController.php';
 require_once '../src/controller/SubmitPaymentController.php';
@@ -132,18 +129,6 @@ $container['phpErrorHandler'] = function ($c){
 // get the default DIC
 $container = $app->getContainer();
 
-$container['PeopleController'] = function($c) {
-    // retrieve the 'pdo' from the container
-    $pdo = $c->get("pdo"); 
-    return new PeopleController($pdo);
-};
-
-$container['OfficeController'] = function($c) {
-    // retrieve the 'pdo' from the container
-    $pdo = $c->get("pdo"); 
-    return new OfficeController($pdo);
-};
-
 $container['TransactionController'] = function($c) {
     $pdo = $c->get("pdo"); 
     $dao = new TransactionDAO($pdo);
@@ -163,77 +148,47 @@ $container['SubmitPaymentController'] = function($c) {
 };
 
 
-
 #### Declare the routes
-#### API endpoints
-
-$app->get('/hello[/{name}]', function ($request, $response, $args) {
-    // check if the service exist in the DIC
-    if ($this->has('pdo')) {
-        $pdo = $this->get('pdo');           // get the service
-
-        return $response->getBody()->write("db connected");
-    }
-});
-
-// get all the people
-$app->get('/people', PeopleController::class . ':getPeople');
-//$app->get('/people', 'PeopleController:getPeople');
-
-// get a single person
-$app->get('/people/{id:[1-9]+}', 'PeopleController:getPeopleById');
-
-// create a person
-$app->post('/people/new', 'PeopleController:createPerson');
-
-
-// get offices of #dept and #district
-$app->get('/depts/{dept_code}/districts/{district_code}/offices', 'OfficeController:getOffices');
-
-// post data to httpbin
-$app->post('/post', PostDataController::class);
-
 
 #############################################################################################################
 #### EGRAS ENDPOINTS
 
 // get transactions
 // GET:     /transactions?page=#
-$app->get('/transactions', TransactionController::class . ':allTransactions');
+$app->get('/api/transactions', TransactionController::class . ':allTransactions');
 
 // get departments
 //GET:          /departments 
-$app->get('/departments', GetDataController::class . ':departments');
+$app->get('/api/departments', GetDataController::class . ':departments');
 
 // get payment types
 // GET:         /paymenttypes
-$app->get('/paymenttypes', GetDataController::class . ':paymenttypes');
+$app->get('/api/paymenttypes', GetDataController::class . ':paymenttypes');
 
 // get districts for #dept_code
 // GET:          /departments/{dept_code}/districts 
-$app->get('/departments/{dept_code}/districts', GetDataController::class . ':districts');
+$app->get('/api/departments/{dept_code}/districts', GetDataController::class . ':districts');
 
 // get offices for #dept_code & #district_code
 // GET:          /departments/{dept_code}/districts/{district_code}/offices
-$app->get('/departments/{dept_code}/districts/{district_code}/offices', GetDataController::class . ':offices');
+$app->get('/api/departments/{dept_code}/districts/{district_code}/offices', GetDataController::class . ':offices');
 
 // get schemes for #office_code 
 // GET:         /offices/{office_code}/schemes
-$app->get('/offices/{office_code}/schemes', GetDataController::class . ':schemes');
+$app->get('/api/offices/{office_code}/schemes', GetDataController::class . ':schemes');
 
 // post payment data 
 // POST:         /submit-payment
-$app->post('/submit-payment', SubmitPaymentController::class);
+$app->post('/api/submit-payment', SubmitPaymentController::class);
 
 // get 5 recent transaction 
 // GET:         /recent-transactions
-$app->get('/recent-transactions', TransactionController::class . ':recentTransactions');
-
-// GET:         /repeat-payment/{id}
-$app->get('/repeat-payment/{id}', TransactionController::class . ':repeatPayment');
+$app->get('/api/recent-transactions', TransactionController::class . ':recentTransactions');
 
 // GET:         /verify-payment/{id}
-$app->get('/verify-payment/{id}', TransactionController::class . ':verifyPayment');
+$app->get('/api/verify-payment/{id}', TransactionController::class . ':verifyPayment');
+
+
 
 #### Finally, run the app
 $app->run();

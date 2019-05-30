@@ -22,25 +22,26 @@ class SubmitPaymentDao
     // write data to egras_log
     public function logData($arr = null)
     {
-        $sql = "insert into egras_log(departmentid, requestparameters) values(?, ?)";
+        $sql = "insert into egras_log(departmentid, requestparameters, u_id, activity) values(?, ?, ?, ?)";
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindValue(1, $arr['department_id'], PDO::PARAM_STR);
         $stmt->bindValue(2, $arr['request_parameters'], PDO::PARAM_STR);
+        $stmt->bindValue(3, $arr['u_id'], PDO::PARAM_STR);
+        $stmt->bindValue(4, $arr['activity'], PDO::PARAM_STR);
         $stmt->execute();
     }
 
     // write data to egras_response
     public function storeData($arr = null)
     {
-        $sql = "insert into egras_response (departmentid, office_code, requestparameters, mobileno, amount, u_id)" 
-                . " values(?, ?, ?, ?, ?, ?)";
+        $sql = "insert into egras_response (departmentid, office_code, requestparameters, u_id, amount)" 
+                . " values(?, ?, ?, ?, ?)";
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindValue(1, $arr['department_id'], PDO::PARAM_STR);
         $stmt->bindValue(2, $arr['office_code'], PDO::PARAM_STR);
         $stmt->bindValue(3, $arr['request_parameters'], PDO::PARAM_STR);
-        $stmt->bindValue(4, $arr['mobile'], PDO::PARAM_INT);
+        $stmt->bindValue(4, $arr['u_id'], PDO::PARAM_STR);
         $stmt->bindValue(5, $arr['amount'], PDO::PARAM_INT);
-        $stmt->bindValue(6, $arr['u_id'], PDO::PARAM_STR);
         $stmt->execute();
     }
 }

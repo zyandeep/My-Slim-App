@@ -18,47 +18,46 @@ class SubmitPaymentController
 
         // Do some processing and validation
 
-        // JUST FOR TESTING PURPOSE
-        $arr["DEPT_CODE"] = "LRS";
-        $arr["OFFICE_CODE"] = "LRS000";
-        $arr['SUB_SYSTEM'] = "LRC-EMOJNI";
+        // JUST FOR TESTING PURPOSE, we are considering only one department and office
+        // LRS => Land Records and Survey
+
+        $arr['SUB_SYSTEM'] = "GRAS-APP";
         $arr["TREASURY_CODE"] = "BIL";
         $arr["MAJOR_HEAD"] = "0029";
 
     
         $id = $this->dao->getUniqueNumber();
         // it must be unique for each transaction
-        // use to identify transaction at department portal
+        // used to uniquely identify transactions at department portal
         $arr['DEPARTMENT_ID'] = "Ele". $id;
 
         // get the list of schemes
         $hoas = $arr['HOA'];
         unset($arr['HOA']);
-        // add addresses and hoas
+        // add amount and hoas
         for ($i=1; $i <= count($hoas); $i++) { 
             $scheme = $hoas[$i-1];
             $arr['HOA' . $i] = $scheme['SCHEME_CODE'];
             $arr['AMOUNT' . $i] = $scheme['amount'];
         }
-        // JUST FOR TESTING PURPOSE
-        $arr["HOA1"] = "0029-00-101-0000-000-01";
 
         unset($arr['SRO_CODE']);
         unset($arr['DISTRICT_CODE']);
 
-        //  Write to egras_log and egras_response
+        //  Write to egras_response and egras_log
         $this->dao->storeData(array(
             'department_id' => $arr['DEPARTMENT_ID'],
             'office_code' => $arr['OFFICE_CODE'],
             'request_parameters' => json_encode($arr),
-            'mobile' => $arr['MOBILE_NO'],
             'amount' => $arr['CHALLAN_AMOUNT'],
             'u_id' => $user->uid
         ));
 
         $this->dao->logData(array(
             'department_id' => $arr['DEPARTMENT_ID'],
-            'request_parameters' => json_encode($arr)
+            'request_parameters' => json_encode($arr),
+            'u_id' => $user->uid,
+            'activity' => "Payment"
         ));
 
 
