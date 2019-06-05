@@ -7,9 +7,15 @@ require_once '../src/controller/AuthMiddleware.php';
 require_once '../src/controller/TransactionController.php';
 require_once '../src/controller/GetDataController.php';
 require_once '../src/controller/SubmitPaymentController.php';
+require_once '../src/controller/DownloadController.php';
+require_once '../src/controller/SearchChallanController.php';
+require_once '../src/controller/ActivityLogController.php';
 require_once '../src/dao/SubmitPaymentDao.php';
 require_once '../src/dao/GetDataDao.php';
 require_once '../src/dao/TransactionDAO.php';
+require_once '../src/dao/DownloadDao.php';
+require_once '../src/dao/SearchDao.php';
+require_once '../src/dao/ActivityLogDao.php';
 
 
 #### Declearing the classes with their namespaces
@@ -19,7 +25,6 @@ use Kreait\Firebase\Factory;
 use Kreait\Firebase\ServiceAccount;
 use Firebase\Auth\Token\Exception\InvalidToken;
 use Symfony\Component\Cache\Simple\FilesystemCache;
-use GuzzleHttp\Client;
 
 
 ##### Application settings
@@ -58,11 +63,6 @@ $container['firebase'] = function ($c) {
                 ->create();
 
     return $firebase;
-};
-
-$container['guzzle'] = function ($c) {
-    $client = new Client(['base_uri' => 'http://httpbin.org']);
-    return $client;
 };
 
 
@@ -147,6 +147,24 @@ $container['SubmitPaymentController'] = function($c) {
     return new SubmitPaymentController($dao);
 };
 
+$container['DownloadController'] = function($c) {
+    $pdo = $c->get("pdo"); 
+    $dao = new DownloadDao($pdo);
+    return new DownloadController($dao);
+};
+
+$container['SearchChallanController'] = function($c) {
+    $pdo = $c->get("pdo"); 
+    $dao = new SearchDao($pdo);
+    return new SearchChallanController($dao);
+};
+
+$container['ActivityLogController'] = function($c) {
+    $pdo = $c->get("pdo"); 
+    $dao = new ActivityLogDao($pdo);
+    return new ActivityLogController($dao);
+};
+
 
 #### Declare the routes
 
@@ -188,6 +206,20 @@ $app->get('/api/recent-transactions', TransactionController::class . ':recentTra
 // GET:         /verify-payment/{id}
 $app->get('/api/verify-payment/{id}', TransactionController::class . ':verifyPayment');
 
+// GET:         /download-challan?id=#
+$app->get('/api/download-challan', DownloadController::class . ':download');
+
+// POST:         /update-challan
+$app->post('/api/update-challan', DownloadController::class . ':update');
+
+// GET:         /suggestions?query=
+$app->get('/api/suggestions', SearchChallanController::class . ':serach');
+
+// GET:         /transaction?grn=
+$app->get('/api/transaction', SearchChallanController::class . ':fetch');
+
+// GET:         /logs?page=
+$app->get('/api/logs', ActivityLogController::class);
 
 
 #### Finally, run the app

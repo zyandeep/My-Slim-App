@@ -20,6 +20,8 @@ class AuthMiddleware
             // get the 'uid' from the token
             // get the currently signed-in user from the 'uid'
 
+            // TRUE => allow a token even if it’s timestamps are invalid
+            
            $verifiedIdToken = $this->firebase->getAuth()->verifyIdToken($jwtToken, false, true);
            $uid = $verifiedIdToken->getClaim('sub');
            $user = $this->firebase->getAuth()->getUser($uid);

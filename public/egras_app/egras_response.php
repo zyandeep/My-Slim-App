@@ -1,4 +1,6 @@
 <?php
+// eGRAS will call this page for two reasons -- Make payment and Verify payment with Bank(getCIN) 
+
 
 require '../../src/controller/EgrasResponse.php';
 
@@ -7,42 +9,42 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $egras = new EgrasResponse();
 
-    $dept_id = $_POST['DEPARTMENT_ID'];
-    $grn = $_POST['GRN'];
-    $amount = $_POST['AMOUNT'];
-    $bank_code = $_POST['BANKCODE'];
-    $cin = $_POST['BANKCIN'];
-    $prn = $_POST['PRN'];
-    $date_time = $_POST['TRANSCOMPLETIONDATETIME'];
-    $status = $_POST['STATUS'];
-    $name = $_POST['PARTYNAME'];
-    $tax_id = $_POST['TAXID'];
-    $bank_name = $_POST['BANKNAME'];
-    $entry_date = $_POST['ENTRY_DATE'];         // challan date
+    $dept_id = trim(filter_var($_POST['DEPARTMENT_ID'], FILTER_SANITIZE_STRING));
+    $grn = trim(filter_var($_POST['GRN'], FILTER_SANITIZE_STRING));
+    $amount = trim(filter_var($_POST['AMOUNT'], FILTER_SANITIZE_STRING));
+    $bank_code = trim(filter_var($_POST['BANKCODE'], FILTER_SANITIZE_STRING));
+    $cin = trim(filter_var($_POST['BANKCIN'], FILTER_SANITIZE_STRING));
+    $prn = trim(filter_var($_POST['PRN'], FILTER_SANITIZE_STRING));
+    $date_time = trim(filter_var($_POST['TRANSCOMPLETIONDATETIME'], FILTER_SANITIZE_STRING));
+    $status = trim(filter_var($_POST['STATUS'], FILTER_SANITIZE_STRING));
+    $name = trim(filter_var($_POST['PARTYNAME'], FILTER_SANITIZE_STRING));
+    $tax_id = trim(filter_var($_POST['TAXID'], FILTER_SANITIZE_STRING));
+    $bank_name = trim(filter_var($_POST['BANKNAME'], FILTER_SANITIZE_STRING));
+    $entry_date = trim(filter_var($_POST['ENTRY_DATE'], FILTER_SANITIZE_STRING));         // challan date
 
-    // check if we have empty values for...
-    if (empty($status) || empty($cin) || empty($prn) || empty($date_time)) {
-        // unsuccessful transaction
-        // so, get the status of the transaction with GETGRN
+    // // check if we have empty values for...
+    // if (empty($status) || empty($cin) || empty($prn) || empty($date_time)) {
+    //     // unsuccessful transaction
+    //     // so, get the status of the transaction with GETGRN
 
-        $office_code = $egras->getOfficeCode($dept_id);
-        $arr =  $egras->getGRN($dept_id, $office_code, $amount);
+    //     $office_code = $egras->getOfficeCode($dept_id);
+    //     $arr =  $egras->getGRN($dept_id, $office_code, $amount);
 
-        if ($arr != null) {
-            $cin = $arr[10];
-            $prn = $arr[12];
-            $date_time = $arr[14];
-            $status = $arr[16];
+    //     if ($arr != null) {
+    //         $cin = $arr[10];
+    //         $prn = $arr[12];
+    //         $date_time = $arr[14];
+    //         $status = $arr[16];
 
-            // update the $_POST array
-            $_POST['BANKCIN'] = $cin;
-            $_POST['PRN'] = $prn;
-            $_POST['TRANSCOMPLETIONDATETIME'] = $date_time;
-            $_POST['STATUS'] = $status;
-        }
-    }
+    //         // update the $_POST array
+    //         $_POST['BANKCIN'] = $cin;
+    //         $_POST['PRN'] = $prn;
+    //         $_POST['TRANSCOMPLETIONDATETIME'] = $date_time;
+    //         $_POST['STATUS'] = $status;
+    //     }
+    // }
 
-    // writing to egras_response
+    // writting to egras_response
     $egras->updateTransaction(array(
         $grn,
         json_encode($_POST),                                        // responseparameters
@@ -54,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $dept_id
     ));
 
-    // writing to egras_log
+    // writting to egras_log
     $egras->logTransaction(array(json_encode($_POST), $dept_id));
 }
 ?>
@@ -75,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <div class="white-text center-align">PAYMENT SUCCESSFUL!</div>
             </div>
             <p>
-                You can now download the respective challan. 
+                <a href="http://transaction_activity">You can now download the respective challan.</a> 
             </p>
 
         <?php elseif ($status == 'P'): ?>
@@ -83,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <div class="black-text center-align">PAYMENT STILL PENDING!</div>
             </div>
             <p>
-                Your transaction is still pending. Verify the transaction status.
+                <a href="http://transaction_activity">Your transaction is still pending. Verify the transaction status.</a>
             </p>
 
         <?php elseif ($status == 'N'): ?>
@@ -95,12 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </p>
 
         <?php endif; ?>
-
-        <div class="section">
-            <strong>Transaction ID:</strong>
-            <p><?php echo $dept_id; ?></p>
-        </div>
-        <div class="divider"></div>
+        
         <div class="section">
             <strong>GRN No:</strong>
             <p><?php echo $grn; ?></p>

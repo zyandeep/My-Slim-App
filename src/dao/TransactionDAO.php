@@ -2,11 +2,13 @@
 class TransactionDAO
 {
     private $pdo;
-    private $rowNum;            // no of rows to fetch 
+    private $rowNum;           
 
     public function __construct($pdo)
     {
         $this->pdo = $pdo;
+
+        // fetching 10 records at a time
         $this->rowNum = 10;
     }
 

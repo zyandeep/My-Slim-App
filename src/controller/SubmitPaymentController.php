@@ -57,7 +57,7 @@ class SubmitPaymentController
             'department_id' => $arr['DEPARTMENT_ID'],
             'request_parameters' => json_encode($arr),
             'u_id' => $user->uid,
-            'activity' => "Payment"
+            'activity' => "Make Payment"
         ));
 
 

@@ -69,16 +69,16 @@ class EgrasResponse
         $sql = "update egras_response set grnno=?, responseparameters=?, amount=?, cin=?, challan_date=to_date(?, 'dd/mm/yyyy'), status=?, mop=? where departmentid=?";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($arr);
-
-        return $stmt->rowCount();           // no. of affected rows
     }
 
     public function logTransaction($arr)
     {
-        $sql = "update egras_log set responseparameters=?, datetime=localtimestamp(0) where departmentid=?";
+        $sql = "update egras_log set responseparameters=?, datetime=localtimestamp(0) "
+                . "where id=(select max(id) as id from egras_log group by DEPARTMENTID having DEPARTMENTID = ?)";
+                
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute($arr);
-
-        return $stmt->rowCount();           // no. of affected rows
+        $stmt->bindValue(1, $arr[0], PDO::PARAM_STR);
+        $stmt->bindValue(2, $arr[1], PDO::PARAM_STR);
+        $stmt->execute();
     }
 }
