@@ -28,4 +28,18 @@ class DownloadController
 
         return $response->withJson($this->dao->updateChallanLog($params));
     }
+
+    public function insert($request, $response, $args)
+    {
+        // get POST params
+        $params = $request->getParsedBody();
+
+        // get the uid
+        $user = $request->getAttribute('user');
+
+        $params['u_id']= $user->uid;
+        $params['activity'] = "Challan Download";
+
+        return $response->withJson($this->dao->insertChallanLog($params));
+    }
 }

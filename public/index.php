@@ -221,6 +221,9 @@ $app->get('/api/transaction', SearchChallanController::class . ':fetch');
 // GET:         /logs?page=
 $app->get('/api/logs', ActivityLogController::class);
 
+// POST:         /insert-challan
+$app->post('/api/insert-challan', DownloadController::class . ':insert');
+
 
 #### Finally, run the app
 $app->run();

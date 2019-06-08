@@ -1,7 +1,6 @@
 <?php
 // eGRAS will call this page for two reasons -- Make payment and Verify payment with Bank(getCIN) 
 
-
 require '../../src/controller/EgrasResponse.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -12,15 +11,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $dept_id = trim(filter_var($_POST['DEPARTMENT_ID'], FILTER_SANITIZE_STRING));
     $grn = trim(filter_var($_POST['GRN'], FILTER_SANITIZE_STRING));
     $amount = trim(filter_var($_POST['AMOUNT'], FILTER_SANITIZE_STRING));
+    $status = trim(filter_var($_POST['STATUS'], FILTER_SANITIZE_STRING));
     $bank_code = trim(filter_var($_POST['BANKCODE'], FILTER_SANITIZE_STRING));
     $cin = trim(filter_var($_POST['BANKCIN'], FILTER_SANITIZE_STRING));
     $prn = trim(filter_var($_POST['PRN'], FILTER_SANITIZE_STRING));
     $date_time = trim(filter_var($_POST['TRANSCOMPLETIONDATETIME'], FILTER_SANITIZE_STRING));
-    $status = trim(filter_var($_POST['STATUS'], FILTER_SANITIZE_STRING));
     $name = trim(filter_var($_POST['PARTYNAME'], FILTER_SANITIZE_STRING));
     $tax_id = trim(filter_var($_POST['TAXID'], FILTER_SANITIZE_STRING));
     $bank_name = trim(filter_var($_POST['BANKNAME'], FILTER_SANITIZE_STRING));
     $entry_date = trim(filter_var($_POST['ENTRY_DATE'], FILTER_SANITIZE_STRING));         // challan date
+
+    // get OFFICE_CODE 
+    $office_code = $egras->getOfficeCode($dept_id);
 
     // // check if we have empty values for...
     // if (empty($status) || empty($cin) || empty($prn) || empty($date_time)) {
@@ -44,6 +46,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     //     }
     // }
 
+    if ($status == 'Y') {
+        // let the user to download the challan right from the web page
+        // so, build the POST parameters
+        
+        $params = "DEPARTMENT_ID=$dept_id&GRN=$grn&OFFICE_CODE=$office_code&AMOUNT=$amount&ACTION_CODE=Y";
+        $url = "http://download_challan?$params";
+    }
+    
     // writting to egras_response
     $egras->updateTransaction(array(
         $grn,
@@ -77,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <div class="white-text center-align">PAYMENT SUCCESSFUL!</div>
             </div>
             <p>
-                <a href="http://transaction_activity">You can now download the respective challan.</a> 
+                <a href="<?php echo isset($url) ? $url : ''; ?>">You can now download the respective challan.</a> 
             </p>
 
         <?php elseif ($status == 'P'): ?>
