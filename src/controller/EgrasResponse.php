@@ -66,7 +66,7 @@ class EgrasResponse
 
     public function updateTransaction($arr)
     {
-        $sql = "update egras_response set grnno=?, responseparameters=?, amount=?, cin=?, challan_date=to_date(?, 'dd/mm/yyyy'), status=?, mop=? where departmentid=?";
+        $sql = "update egras_response set grnno=?, responseparameters=?, amount=?, cin=?, challan_date=to_date(?, 'dd/mm/yyyy'), status=?, mop=?, datetime=localtimestamp(0) where departmentid=?";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($arr);
     }
