@@ -79,6 +79,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Payment Summary</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <style>
+        a {
+  		    color: #FF9800;
+  		    text-decoration: none;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -86,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <div class="card-panel z-depth-3 green darken-1">
                 <div class="white-text center-align">PAYMENT SUCCESSFUL!</div>
             </div>
-            <p>
+            <p class="flow-text">
                 <a href="<?php echo isset($url) ? $url : ''; ?>">You can now download the respective challan.</a> 
             </p>
 
@@ -94,15 +100,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <div class="card-panel z-depth-3 yellow lighten-1">
                 <div class="black-text center-align">PAYMENT STILL PENDING!</div>
             </div>
-            <p>
+            <p class="flow-text">
                 <a href="http://transaction_activity">Your transaction is still pending. Verify the transaction status.</a>
             </p>
 
-        <?php elseif ($status == 'N'): ?>
+        <?php else: ?>
             <div class="card-panel z-depth-3 red lighten-2">
                 <div class="white-text center-align">PAYMENT FAILED!</div>
             </div>
-            <p>
+            <p class="flow-text">
                 We are sorry that your transaction couldn't be processed. Try again later.
             </p>
 

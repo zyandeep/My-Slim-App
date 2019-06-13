@@ -7,6 +7,7 @@ use GuzzleHttp\Client;
 
 $client = new Client(['base_uri' => 'http://103.8.248.139']);
 
+
 /*
 //Print Challan
 $response = $client->request('POST', '/challan/views/frmEpayEchallanPrintMerge.php', 
@@ -19,6 +20,7 @@ $response = $client->request('POST', '/challan/views/frmEpayEchallanPrintMerge.p
         'ACTION_CODE' => 'Y'
     ]
 ]);
+
 */
 
 // GETGRN
@@ -31,8 +33,8 @@ $response = $client->request('POST', '/challan/models/frmgetgrn.php',
     ]
 ]);
 
-
-/*//GETCIN
+/*
+//GETCIN
 $response = $client->request('POST', '/challan/models/frmgetgrn.php', 
 [
     'form_params' => [
