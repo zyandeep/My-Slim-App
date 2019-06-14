@@ -32,20 +32,20 @@ class EgrasResponse
                 'DEPARTMENT_ID' => $dept_id,
                 'OFFICE_CODE' => $office_code,
                 'AMOUNT' => $amount
-            ],
-            
-            'synchronous' => true
+            ]
         ]);
 
         // hopefully, we get STATUS this time
         if ($response->getStatusCode() == 200) {
             $data = $response->getBody();
 
-            $arr = explode('$', $data);
+            //$arr = explode('$', $data);
 
-            if ($arr[15] == 'STATUS' && !empty($arr[16])) {
-                return $arr;
-            }
+            // if ($arr[15] == 'STATUS' && !empty($arr[16])) {
+            //     return $arr;
+            // }
+
+            return $data;
         }
 
         return null;            // unsuccessfull GETGRN request

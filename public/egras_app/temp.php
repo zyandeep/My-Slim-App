@@ -24,14 +24,44 @@ $response = $client->request('POST', '/challan/views/frmEpayEchallanPrintMerge.p
 */
 
 // GETGRN
-$response = $client->request('POST', '/challan/models/frmgetgrn.php', 
-[
-    'form_params' => [
-        'DEPARTMENT_ID' => 'Ele2120',
-        'OFFICE_CODE' => 'LRS000',
-        'AMOUNT' => 19
-    ]
-]);
+// $response = $client->request('POST', '/challan/models/frmgetgrn.php', 
+// [
+//     'form_params' => [
+//         'DEPARTMENT_ID' => 'Ele2120',
+//         'OFFICE_CODE' => 'LRS000',
+//         'AMOUNT' => 19
+//     ]
+// ]);
+
+
+// PHP cURL POST: GETGRN
+$ch = curl_init();                  // init a cURL session 
+
+$data = array(
+    'DEPARTMENT_ID' => 'Ele2120',
+    'OFFICE_CODE' => 'LRS000',
+    'AMOUNT' => 19
+);
+
+// set cURL options
+curl_setopt_array($ch,
+    array(
+        CURLOPT_URL => "http://103.8.248.139/challan/models/frmgetgrn.php",
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => $data,
+        CURLOPT_RETURNTRANSFER => true
+    )
+);
+
+$output = curl_exec($ch);
+$info = curl_getinfo($ch);
+curl_close($ch);                 // close the cURL session 
+
+echo $output . "<br>";
+
+print_r($info);
+
+
 
 /*
 //GETCIN
@@ -48,8 +78,8 @@ $response = $client->request('POST', '/challan/models/frmgetgrn.php',
 */
 
 
-if ($response->getStatusCode() == 200) {
-    $data = $response->getBody();
+// if ($response->getStatusCode() == 200) {
+//     $data = $response->getBody();
 
-    echo $data;
-}
+//     echo $data;
+// }

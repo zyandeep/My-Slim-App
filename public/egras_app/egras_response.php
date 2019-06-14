@@ -29,7 +29,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     //     // unsuccessful transaction
     //     // so, get the status of the transaction with GETGRN
 
-    //     $office_code = $egras->getOfficeCode($dept_id);
     //     $arr =  $egras->getGRN($dept_id, $office_code, $amount);
 
     //     if ($arr != null) {
@@ -52,22 +51,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         
         $params = "DEPARTMENT_ID=$dept_id&GRN=$grn&OFFICE_CODE=$office_code&AMOUNT=$amount&ACTION_CODE=Y";
         $url = "http://download_challan?$params";
-    }
-    
-    // writting to egras_response
-    $egras->updateTransaction(array(
-        $grn,
-        json_encode($_POST),                                        // responseparameters
-        $amount,
-        $cin,
-        $entry_date,
-        $status,
-        'O-' . $bank_code,                                          // mop
-        $dept_id
-    ));
 
-    // writting to egras_log
-    $egras->logTransaction(array(json_encode($_POST), $dept_id));
+         // writting to egras_response
+        $egras->updateTransaction(array(
+            $grn,
+            json_encode($_POST),                                        // responseparameters
+            $amount,
+            $cin,
+            $entry_date,
+            $status,
+            'O-' . $bank_code,                                          // mop
+            $dept_id
+        ));
+        
+        // writting to egras_log
+        $egras->logTransaction(array(json_encode($_POST), $dept_id));
+    }
 }
 ?>
 
