@@ -38,14 +38,12 @@ class EgrasResponse
         // hopefully, we get STATUS this time
         if ($response->getStatusCode() == 200) {
             $data = $response->getBody();
+            
+            $arr = explode('$', $data);
 
-            //$arr = explode('$', $data);
-
-            // if ($arr[15] == 'STATUS' && !empty($arr[16])) {
-            //     return $arr;
-            // }
-
-            return $data;
+            if ($arr[15] == 'STATUS' && !empty($arr[16])) {
+                return $arr;
+            }
         }
 
         return null;            // unsuccessfull GETGRN request

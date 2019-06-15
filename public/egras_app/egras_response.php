@@ -24,26 +24,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // get OFFICE_CODE 
     $office_code = $egras->getOfficeCode($dept_id);
 
-    // // check if we have empty values for...
-    // if (empty($status) || empty($cin) || empty($prn) || empty($date_time)) {
-    //     // unsuccessful transaction
-    //     // so, get the status of the transaction with GETGRN
+    // check if we have empty values for...
+    if (empty($status) || empty($cin) || empty($prn) || empty($date_time)) {
+        // unsuccessful transaction
+        // so, get the status of the transaction with GETGRN
 
-    //     $arr =  $egras->getGRN($dept_id, $office_code, $amount);
+        $arr =  $egras->getGRN($dept_id, $office_code, $amount);
 
-    //     if ($arr != null) {
-    //         $cin = $arr[10];
-    //         $prn = $arr[12];
-    //         $date_time = $arr[14];
-    //         $status = $arr[16];
+        if ($arr != null) {
+            $cin = $arr[10];
+            $prn = $arr[12];
+            $date_time = $arr[14];
+            $status = $arr[16];
 
-    //         // update the $_POST array
-    //         $_POST['BANKCIN'] = $cin;
-    //         $_POST['PRN'] = $prn;
-    //         $_POST['TRANSCOMPLETIONDATETIME'] = $date_time;
-    //         $_POST['STATUS'] = $status;
-    //     }
-    // }
+            // update the $_POST array
+            $_POST['BANKCIN'] = $cin;
+            $_POST['PRN'] = $prn;
+            $_POST['TRANSCOMPLETIONDATETIME'] = $date_time;
+            $_POST['STATUS'] = $status;
+        }
+    }
 
     if ($status == 'Y') {
         // let the user to download the challan right from the web page
@@ -51,22 +51,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         
         $params = "DEPARTMENT_ID=$dept_id&GRN=$grn&OFFICE_CODE=$office_code&AMOUNT=$amount&ACTION_CODE=Y";
         $url = "http://download_challan?$params";
-
-         // writting to egras_response
-        $egras->updateTransaction(array(
-            $grn,
-            json_encode($_POST),                                        // responseparameters
-            $amount,
-            $cin,
-            $entry_date,
-            $status,
-            'O-' . $bank_code,                                          // mop
-            $dept_id
-        ));
-        
-        // writting to egras_log
-        $egras->logTransaction(array(json_encode($_POST), $dept_id));
     }
+
+    // writting to egras_response
+    $egras->updateTransaction(array(
+        $grn,
+        json_encode($_POST),                                        // responseparameters
+        $amount,
+        $cin,
+        $entry_date,
+        $status,
+        'O-' . $bank_code,                                          // mop
+        $dept_id
+    ));
+    
+    // writting to egras_log
+    $egras->logTransaction(array(json_encode($_POST), $dept_id));
 }
 ?>
 
@@ -97,10 +97,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         <?php elseif ($status == 'P'): ?>
             <div class="card-panel z-depth-3 yellow lighten-1">
-                <div class="black-text center-align">PAYMENT STILL PENDING!</div>
+                <div class="black-text center-align">PAYMENT IS PENDING!</div>
             </div>
             <p class="flow-text">
-                <a href="http://transaction_activity">Your transaction is still pending. Verify the transaction status.</a>
+                <a href="http://transaction_activity">Click here to verify transaction status...</a>
             </p>
 
         <?php else: ?>

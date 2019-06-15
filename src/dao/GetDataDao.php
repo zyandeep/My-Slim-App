@@ -57,6 +57,7 @@ class GetDataDao
         $stmt->execute();
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
+        $data = array(); 
         $data['success'] = true;
         $data['result'] = array();      // index array
 
@@ -78,6 +79,7 @@ class GetDataDao
         $stmt->execute();
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
+        $data = array(); 
         $data['success'] = true;
         $data['result'] = array();      // index array
 
@@ -98,6 +100,7 @@ class GetDataDao
         $stmt->execute();
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
+        $data = array(); 
         $data['success'] = true;
         $data['result'] = array();      // index array
 

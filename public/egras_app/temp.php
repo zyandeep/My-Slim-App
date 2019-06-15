@@ -21,21 +21,20 @@ $response = $client->request('POST', '/challan/views/frmEpayEchallanPrintMerge.p
     ]
 ]);
 
-*/
-
 // GETGRN
-// $response = $client->request('POST', '/challan/models/frmgetgrn.php', 
-// [
-//     'form_params' => [
-//         'DEPARTMENT_ID' => 'Ele2120',
-//         'OFFICE_CODE' => 'LRS000',
-//         'AMOUNT' => 19
-//     ]
-// ]);
+$response = $client->request('POST', '/challan/models/frmgetgrn.php', 
+[
+    'form_params' => [
+        'DEPARTMENT_ID' => 'Ele2120',
+        'OFFICE_CODE' => 'LRS000',
+        'AMOUNT' => 19
+    ]
+]);
+*/
 
 
 // PHP cURL POST: GETGRN
-$ch = curl_init();                  // init a cURL session 
+/*$ch = curl_init();                  // init a cURL session 
 
 $data = array(
     'DEPARTMENT_ID' => 'Ele2120',
@@ -61,25 +60,27 @@ echo $output . "<br>";
 
 print_r($info);
 
+*/
 
 
-/*
 //GETCIN
+// OFFICE_CODE=LRS000&DEPARTMENT_ID=Ele2140&AMOUNT=9&ACTION_CODE=GETCIN&SUB_SYSTEM=GRAS-APP
 $response = $client->request('POST', '/challan/models/frmgetgrn.php', 
 [
     'form_params' => [
-        'DEPARTMENT_ID' => 'Ele2120',
+        'DEPARTMENT_ID' => 'Ele2145',
         'OFFICE_CODE' => 'LRS000',
-        'AMOUNT' => 19,
+        'AMOUNT' => 16,
         'ACTION_CODE' => 'GETCIN',
         'SUB_SYSTEM' => 'GRAS-APP'
     ]
 ]);
-*/
 
 
-// if ($response->getStatusCode() == 200) {
-//     $data = $response->getBody();
 
-//     echo $data;
-// }
+
+if ($response->getStatusCode() == 200) {
+    $data = $response->getBody();
+
+    echo $data;
+}

@@ -17,10 +17,10 @@ class TransactionDAO
         if (empty($json['year']) && empty($json['month1']) && empty($json['month2'])) {
             // for an unfiltered/general search
 
-             $sql = "SELECT id, name, grnno, to_char(challan_date, 'DD/MON/YYYY') as challan_date, amount, status, mop FROM"
-                . " (SELECT egras_response.id, office.name, grnno, challan_date, amount, status, mop, egras_response.datetime FROM"
+             $sql = "SELECT id, name, grnno, to_char(challan_date, 'DD/MON/YYYY') as challan_date, amount, status, mop, office_code, requestparameters FROM"
+                . " (SELECT egras_response.id, office.name, grnno, challan_date, amount, status, mop, egras_response.datetime, office.office_code, requestparameters FROM"
                 . " office, egras_response WHERE office.office_code =  egras_response.office_code AND u_id = ?"
-                . " MINUS SELECT * FROM (SELECT egras_response.id, office.name, grnno, challan_date, amount, status, mop, egras_response.datetime"
+                . " MINUS SELECT * FROM (SELECT egras_response.id, office.name, grnno, challan_date, amount, status, mop, egras_response.datetime, office.office_code, requestparameters"
                 . " FROM office, egras_response WHERE office.office_code = egras_response.office_code AND u_id = ?"
                 . " ORDER BY egras_response.datetime DESC) WHERE ROWNUM <= ? * $this->rowNum ORDER BY datetime DESC)"
                 . " WHERE ROWNUM <= $this->rowNum";
@@ -34,8 +34,8 @@ class TransactionDAO
         else {
             // do a filtered search
 
-            $sql = "SELECT id, name, grnno, to_char(challan_date, 'DD/MON/YYYY') as challan_date, amount, status, mop FROM (SELECT egras_response.id, office.name, grnno, challan_date, amount, status, mop, egras_response.datetime FROM office, egras_response WHERE office.office_code =  egras_response.office_code  AND u_id = ? AND (EXTRACT(MONTH FROM challan_date)
-            between ? and ? OR EXTRACT(MONTH FROM challan_date) between ? and ?) AND extract(YEAR FROM challan_date) = ? MINUS SELECT * FROM (SELECT egras_response.id, office.name, grnno, challan_date, amount, status, mop, egras_response.datetime FROM office, egras_response WHERE office.office_code = egras_response.office_code  AND u_id = ? AND (EXTRACT(MONTH FROM challan_date)
+            $sql = "SELECT id, name, grnno, to_char(challan_date, 'DD/MON/YYYY') as challan_date, amount, status, mop, office_code, requestparameters FROM (SELECT egras_response.id, office.name, grnno, challan_date, amount, status, mop, egras_response.datetime, office.office_code, requestparameters FROM office, egras_response WHERE office.office_code =  egras_response.office_code  AND u_id = ? AND (EXTRACT(MONTH FROM challan_date)
+            between ? and ? OR EXTRACT(MONTH FROM challan_date) between ? and ?) AND extract(YEAR FROM challan_date) = ? MINUS SELECT * FROM (SELECT egras_response.id, office.name, grnno, challan_date, amount, status, mop, egras_response.datetime, office.office_code, requestparameters FROM office, egras_response WHERE office.office_code = egras_response.office_code  AND u_id = ? AND (EXTRACT(MONTH FROM challan_date)
             between ? and ? OR EXTRACT(MONTH FROM challan_date) between ? and ?) AND extract(YEAR FROM challan_date) = ? ORDER BY egras_response.datetime DESC )WHERE ROWNUM <= ? * $this->rowNum ORDER BY datetime DESC) WHERE ROWNUM <= $this->rowNum";
             
             $stmt = $this->pdo->prepare($sql);
