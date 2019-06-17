@@ -137,4 +137,28 @@ class TransactionDAO
  
         return $data;
     }
+
+
+    public function insertLog($arr)
+    {
+        // get the ID to be inserted
+        $stmt = $this->pdo->prepare('SELECT EGRAS_RESPONSE_LOG_SEQ.NEXTVAL AS nextInsertID FROM DUAL');
+        $stmt->execute();
+        $nextInsertId = $stmt->fetchColumn(0);
+ 
+        $sql = "insert into egras_log(id, departmentid, requestparameters, u_id, activity) values(?, ?, ?, ?, ?)";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue(1, $nextInsertId, PDO::PARAM_INT);
+        $stmt->bindValue(2, $arr['dept_id'], PDO::PARAM_STR);
+        $stmt->bindValue(3, $arr['req_param'], PDO::PARAM_STR);
+        $stmt->bindValue(4, $arr['u_id'], PDO::PARAM_STR);
+        $stmt->bindValue(5, $arr['activity'], PDO::PARAM_STR);
+        $stmt->execute();
+
+        $data = array();
+        $data['success'] = true;
+        $data['data'] = $nextInsertId;              // last inserted id
+
+        return $data;
+    }
 }

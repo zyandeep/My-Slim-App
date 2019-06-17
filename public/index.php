@@ -224,6 +224,8 @@ $app->get('/api/logs', ActivityLogController::class);
 // POST:         /insert-challan
 $app->post('/api/insert-challan', DownloadController::class . ':insert');
 
+// POST:         /verify-payment
+$app->post('/api/verify-payment', TransactionController::class . ':insert');
 
 #### Finally, run the app
 $app->run();

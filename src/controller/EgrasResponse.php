@@ -69,7 +69,7 @@ class EgrasResponse
         $stmt->execute($arr);
     }
 
-    public function logTransaction($arr)
+    public function updateLog($arr)
     {
         $sql = "update egras_log set responseparameters=?, datetime=localtimestamp(0) "
                 . "where id=(select max(id) as id from egras_log group by DEPARTMENTID having DEPARTMENTID = ?)";

@@ -1,5 +1,12 @@
 <?php
 // eGRAS will call this page for two reasons -- Make payment and Verify payment with Bank(getCIN) 
+// Transaction status
+/*
+    Y => Successful
+    P => Pending
+    N => Fail
+*/
+
 
 require '../../src/controller/EgrasResponse.php';
 
@@ -46,11 +53,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     if ($status == 'Y') {
-        // let the user to download the challan right from the web page
+        // let the user download the challan right from the web page
         // so, build the POST parameters
         
         $params = "DEPARTMENT_ID=$dept_id&GRN=$grn&OFFICE_CODE=$office_code&AMOUNT=$amount&ACTION_CODE=Y";
         $url = "http://download_challan?$params";
+    }
+    elseif ($status == 'P') {
+        // let the user verify the transaction status right from the web page
+        // so, build the POST parameters
+        
+        $params = "DEPARTMENT_ID=$dept_id&OFFICE_CODE=$office_code&AMOUNT=$amount&ACTION_CODE=GETCIN&SUB_SYSTEM=GRAS-APP";
+        $url = "http://verify_transaction?$params";
     }
 
     // writting to egras_response
@@ -66,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     ));
     
     // writting to egras_log
-    $egras->logTransaction(array(json_encode($_POST), $dept_id));
+    $egras->updateLog(array(json_encode($_POST), $dept_id));
 }
 ?>
 
@@ -100,7 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <div class="black-text center-align">PAYMENT IS PENDING!</div>
             </div>
             <p class="flow-text">
-                <a href="http://transaction_activity">Click here to verify transaction status...</a>
+                <a href="<?php echo isset($url) ? $url : ''; ?>">Click here to verify transaction status...</a>
             </p>
 
         <?php else: ?>

@@ -40,4 +40,19 @@ class TransactionController
 
         return $response->withJson($this->dao->verifyPayment($id, $uid));
     }
+
+    // to verify payment from the webview
+    public function insert($request, $response, $args)
+    {
+        // get POST params
+        $params = $request->getParsedBody();
+
+        // get the uid
+        $user = $request->getAttribute('user');
+
+        $params['u_id']= $user->uid;
+        $params['activity'] = "Verify Payment";
+
+        return $response->withJson($this->dao->insertLog($params));
+    }
 }
