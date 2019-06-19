@@ -26,26 +26,32 @@ class EgrasResponse
 
     public function getGRN($dept_id, $office_code, $amount)
     {
-        $response = $this->client->request('POST', '/challan/models/frmgetgrn.php', 
-        [
-            'form_params' => [
-                'DEPARTMENT_ID' => $dept_id,
-                'OFFICE_CODE' => $office_code,
-                'AMOUNT' => $amount
-            ]
-        ]);
+        try {
+            $response = $this->client->request('POST', '/challan/models/frmgetgrn.php', 
+                        [
+                            'form_params' => [
+                                'DEPARTMENT_ID' => $dept_id,
+                                'OFFICE_CODE' => $office_code,
+                                'AMOUNT' => $amount
+                            ]
+                        ]);
 
-        // hopefully, we get STATUS this time
-        if ($response->getStatusCode() == 200) {
-            $data = $response->getBody();
-            
-            $arr = explode('$', $data);
+            // hopefully, we get STATUS this time
+            if ($response->getStatusCode() == 200) {
+                $data = $response->getBody();
+                
+                $arr = explode('$', $data);
 
-            if ($arr[15] == 'STATUS' && !empty($arr[16])) {
-                return $arr;
+                if ($arr[15] == 'STATUS' && !empty($arr[16])) {
+                    return $arr;
+                }
             }
+        } 
+        catch (Exception $e) {
+            echo "<h3>Error! </h3>";
+            echo "<p><strong> $e->getMessage() </strong></p>";
         }
-
+        
         return null;            // unsuccessfull GETGRN request
     }
 
