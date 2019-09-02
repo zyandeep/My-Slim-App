@@ -16,7 +16,7 @@ class EgrasResponse
         // create the db connection
         $dns = 'oci:dbname=localhost/XE';
         $username = 'zyandeep';
-        $password = '123qweASD';
+        $password = 'pao123';
 
         $this->pdo = new PDO($dns, $username, $password);
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);

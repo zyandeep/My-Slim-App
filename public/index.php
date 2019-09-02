@@ -32,7 +32,7 @@ $config = array();
 $config['displayErrorDetails'] = true;                  // slim's default
 $config['db'] = array(                                  // app specific
     'username' => 'zyandeep',
-    'password' => '123qweASD',
+    'password' => 'pao123',
     'dns' => 'oci:dbname=localhost/XE'
 );
 

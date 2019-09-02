@@ -11,7 +11,7 @@
 require '../../src/controller/EgrasResponse.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // get all the parameters POSTed by GRAS
+    // get all the parameters POSTed by e-GRAS
 
     $egras = new EgrasResponse();
 
@@ -31,25 +31,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // get OFFICE_CODE 
     $office_code = $egras->getOfficeCode($dept_id);
 
-    // check if we have empty values for...
-    if (empty($status) || empty($cin) || empty($prn) || empty($date_time)) {
-        // unsuccessful transaction
-        // so, get the status of the transaction with GETGRN
+    // make GETGRN call to verify the transaction status
+    $arr =  $egras->getGRN($dept_id, $office_code, $amount);
 
-        $arr =  $egras->getGRN($dept_id, $office_code, $amount);
+    if ($arr != null) {
+        $cin = trim(filter_var($arr[10], FILTER_SANITIZE_STRING));
+        $prn = trim(filter_var($arr[12], FILTER_SANITIZE_STRING));
+        $date_time = trim(filter_var($arr[14], FILTER_SANITIZE_STRING));
+        $status = trim(filter_var($arr[16], FILTER_SANITIZE_STRING));
 
-        if ($arr != null) {
-            $cin = $arr[10];
-            $prn = $arr[12];
-            $date_time = $arr[14];
-            $status = $arr[16];
-
-            // update the $_POST array
-            $_POST['BANKCIN'] = $cin;
-            $_POST['PRN'] = $prn;
-            $_POST['TRANSCOMPLETIONDATETIME'] = $date_time;
-            $_POST['STATUS'] = $status;
-        }
+        // update the $_POST array
+        $_POST['BANKCIN'] = $cin;
+        $_POST['PRN'] = $prn;
+        $_POST['TRANSCOMPLETIONDATETIME'] = $date_time;
+        $_POST['STATUS'] = $status;
+    }
+    else {
+        // unsecccessfull GETGRN call
     }
 
     if ($status == 'Y') {
